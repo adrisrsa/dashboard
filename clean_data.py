@@ -6,7 +6,12 @@ import pandas as pd
 #Importamos los archivos
 df_monthly = pd.read_csv('./dat/monthly_stats.csv', delimiter="\t", encoding = 'UTF-16')
 df_countries = pd.read_csv('./dat/country_iso.csv', encoding = 'UTF-8')
-df_daily = pd.read_csv('./dat/daily_stats.csv', delimiter="\t", encoding = 'UTF-16')
+df_daily = pd.read_csv(
+    "./dat/daily_stats.zip",              # archivo ZIP
+    compression='zip',        # indica que es un ZIP
+    delimiter="\t",           # separador del CSV
+    encoding="utf-16"         # codificación del archivo CSV
+)
 
 #Empezados con monthly quitando las columnas que no necesitamos
 df_month = df_monthly.drop(columns=['Unified Name', 'Unified ID', 'Unified Publisher Name', 'Unified Publisher ID', 'Publisher Name', 'Publisher ID', 'App Name', 'App ID'])
@@ -70,4 +75,5 @@ df_day['Month_Name'] = df_day['Date'].dt.strftime('%B')
 #DATOS LIMPIADOS; TENEMOS DOS DF DF_MONTH Y DF_DAY
 df_month = df_month
 df_day = df_day
+
 
