@@ -3,7 +3,7 @@ import streamlit as st
 import plotly.express as px
 from clean_data import df_month, df_day
 import plotly.graph_objects as go
-from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
+# from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 import numpy as np
 
 
@@ -363,135 +363,136 @@ with tab2:
         st.write("No hay datos diarios para el mes/plataforma/país seleccionados.")
 
 
-#GRID POR PAISES
+# #GRID POR PAISES
 
-    # --- Preparar dataframe por país ---
-    df_country_summary = df_month_filtered.groupby('Country', as_index=False).agg({
-        'Revenue': 'sum',
-        'Downloads': 'sum'
-    })
+#     # --- Preparar dataframe por país ---
+#     df_country_summary = df_month_filtered.groupby('Country', as_index=False).agg({
+#         'Revenue': 'sum',
+#         'Downloads': 'sum'
+#     })
 
-    df_country_prev = df_month_prev.groupby('Country', as_index=False).agg({
-        'Revenue': 'sum',
-        'Downloads': 'sum'
-    })
+#     df_country_prev = df_month_prev.groupby('Country', as_index=False).agg({
+#         'Revenue': 'sum',
+#         'Downloads': 'sum'
+#     })
 
-    # Función delta %
-    def pct_delta(curr, prev):
-        if prev == 0:
-            return None
-        return (curr - prev) / prev * 100
+#     # Función delta %
+#     def pct_delta(curr, prev):
+#         if prev == 0:
+#             return None
+#         return (curr - prev) / prev * 100
 
-    df_country_summary['Revenue Δ%'] = df_country_summary.apply(
-        lambda row: pct_delta(
-            row['Revenue'], 
-            df_country_prev.loc[df_country_prev['Country']==row['Country'], 'Revenue'].sum()
-            if row['Country'] in df_country_prev['Country'].values else 0
-        ), axis=1
-    )
+#     df_country_summary['Revenue Δ%'] = df_country_summary.apply(
+#         lambda row: pct_delta(
+#             row['Revenue'], 
+#             df_country_prev.loc[df_country_prev['Country']==row['Country'], 'Revenue'].sum()
+#             if row['Country'] in df_country_prev['Country'].values else 0
+#         ), axis=1
+#     )
 
-    df_country_summary['Installs Δ%'] = df_country_summary.apply(
-        lambda row: pct_delta(
-            row['Downloads'], 
-            df_country_prev.loc[df_country_prev['Country']==row['Country'], 'Downloads'].sum()
-            if row['Country'] in df_country_prev['Country'].values else 0
-        ), axis=1
-    )
+#     df_country_summary['Installs Δ%'] = df_country_summary.apply(
+#         lambda row: pct_delta(
+#             row['Downloads'], 
+#             df_country_prev.loc[df_country_prev['Country']==row['Country'], 'Downloads'].sum()
+#             if row['Country'] in df_country_prev['Country'].values else 0
+#         ), axis=1
+#     )
 
-    # Renombrar columnas
-    df_country_summary.rename(columns={
-        'Revenue': 'Revenue ($)',
-        'Downloads': 'Installs'
-    }, inplace=True)
+#     # Renombrar columnas
+#     df_country_summary.rename(columns={
+#         'Revenue': 'Revenue ($)',
+#         'Downloads': 'Installs'
+#     }, inplace=True)
 
-    # Orden inicial por Revenue descendente
-    df_country_summary.sort_values(by='Revenue ($)', ascending=False, inplace=True)
+#     # Orden inicial por Revenue descendente
+#     df_country_summary.sort_values(by='Revenue ($)', ascending=False, inplace=True)
 
-    # --- Configurar AgGrid ---
-    gb = GridOptionsBuilder.from_dataframe(df_country_summary)
+#     # --- Configurar AgGrid ---
+#     gb = GridOptionsBuilder.from_dataframe(df_country_summary)
 
-    # Hacer todas las columnas ordenables
-    gb.configure_default_column(sortable=True, filter=True, resizable=True)
+#     # Hacer todas las columnas ordenables
+#     gb.configure_default_column(sortable=True, filter=True, resizable=True)
 
-    # Ajustes de formato
-    gb.configure_column("Revenue ($)", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toLocaleString()}`")
-    gb.configure_column("Revenue Δ%", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toFixed(2)}%`")
-    gb.configure_column("Installs", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toLocaleString()}`")
-    gb.configure_column("Installs Δ%", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toFixed(2)}%`")
+#     # Ajustes de formato
+#     gb.configure_column("Revenue ($)", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toLocaleString()}`")
+#     gb.configure_column("Revenue Δ%", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toFixed(2)}%`")
+#     gb.configure_column("Installs", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toLocaleString()}`")
+#     gb.configure_column("Installs Δ%", type=["numericColumn","numberColumnFilter"], valueFormatter="`${value.toFixed(2)}%`")
 
-    grid_options = gb.build()
+#     grid_options = gb.build()
 
-    # --- Mostrar AgGrid ---
-    st.subheader("Variacion por país")
-    AgGrid(
-        df_country_summary,
-        gridOptions=grid_options,
-        height=400,
-        fit_columns_on_grid_load=True
-    )
+#     # --- Mostrar AgGrid ---
+#     st.subheader("Variacion por país")
+#     AgGrid(
+#         df_country_summary,
+#         gridOptions=grid_options,
+#         height=400,
+#         fit_columns_on_grid_load=True
+#     )
     
-    #GRID DIARIO
+#     #GRID DIARIO
 
 
-    # Filtrar df_day para el mes seleccionado
-    df_day_filtered = df_day[
-        (df_day['Country'].isin(selected_country)) &
-        (df_day['Date'].dt.to_period('M') == sel_period)
-    ]
+#     # Filtrar df_day para el mes seleccionado
+#     df_day_filtered = df_day[
+#         (df_day['Country'].isin(selected_country)) &
+#         (df_day['Date'].dt.to_period('M') == sel_period)
+#     ]
 
-    if not df_day_filtered.empty:
-        # Agrupar por día y plataforma
-        df_grouped = df_day_filtered.groupby(['Date','Platform']).agg(
-            Revenue=('Revenue','sum'),
-            Downloads=('Downloads','sum')
-        ).reset_index()
+#     if not df_day_filtered.empty:
+#         # Agrupar por día y plataforma
+#         df_grouped = df_day_filtered.groupby(['Date','Platform']).agg(
+#             Revenue=('Revenue','sum'),
+#             Downloads=('Downloads','sum')
+#         ).reset_index()
 
-        # Pivotar para columnas por plataforma
-        df_pivot = df_grouped.pivot(index='Date', columns='Platform', values=['Revenue','Downloads'])
-        df_pivot.columns = [f"{plat} {metric}" for metric, plat in df_pivot.columns]
-        df_pivot = df_pivot.reset_index()
+#         # Pivotar para columnas por plataforma
+#         df_pivot = df_grouped.pivot(index='Date', columns='Platform', values=['Revenue','Downloads'])
+#         df_pivot.columns = [f"{plat} {metric}" for metric, plat in df_pivot.columns]
+#         df_pivot = df_pivot.reset_index()
 
-        # Calcular totales
-        df_pivot['Totales Revenue'] = df_pivot[['App Store Revenue','Google Play Revenue']].sum(axis=1)
-        df_pivot['Totales Downloads'] = df_pivot[['App Store Downloads','Google Play Downloads']].sum(axis=1)
+#         # Calcular totales
+#         df_pivot['Totales Revenue'] = df_pivot[['App Store Revenue','Google Play Revenue']].sum(axis=1)
+#         df_pivot['Totales Downloads'] = df_pivot[['App Store Downloads','Google Play Downloads']].sum(axis=1)
 
-        # --- Configuración AgGrid ---
-        gb = GridOptionsBuilder.from_dataframe(df_pivot)
+#         # --- Configuración AgGrid ---
+#         gb = GridOptionsBuilder.from_dataframe(df_pivot)
 
-        # Formatter para revenue con 2 decimales y miles
-        revenue_formatter = JsCode("""
-            function(params) {
-                if (params.value == null) return '';
-                return params.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            }
-        """)
+#         # Formatter para revenue con 2 decimales y miles
+#         revenue_formatter = JsCode("""
+#             function(params) {
+#                 if (params.value == null) return '';
+#                 return params.value.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+#             }
+#         """)
 
-        # Formatter para installs como entero
-        installs_formatter = JsCode("""
-            function(params) {
-                if (params.value == null) return '';
-                return Math.round(params.value).toLocaleString();
-            }
-        """)
+#         # Formatter para installs como entero
+#         installs_formatter = JsCode("""
+#             function(params) {
+#                 if (params.value == null) return '';
+#                 return Math.round(params.value).toLocaleString();
+#             }
+#         """)
 
-        # App Store
-        gb.configure_column("App Store Revenue", header_name="App Store\nRevenue($)", type=["numericColumn"], valueFormatter=revenue_formatter)
-        gb.configure_column("App Store Downloads", header_name="App Store\nInstalls", type=["numericColumn"], valueFormatter=installs_formatter)
+#         # App Store
+#         gb.configure_column("App Store Revenue", header_name="App Store\nRevenue($)", type=["numericColumn"], valueFormatter=revenue_formatter)
+#         gb.configure_column("App Store Downloads", header_name="App Store\nInstalls", type=["numericColumn"], valueFormatter=installs_formatter)
 
-        # Google Play
-        gb.configure_column("Google Play Revenue", header_name="Google Play\nRevenue($)", type=["numericColumn"], valueFormatter=revenue_formatter)
-        gb.configure_column("Google Play Downloads", header_name="Google Play\nInstalls", type=["numericColumn"], valueFormatter=installs_formatter)
+#         # Google Play
+#         gb.configure_column("Google Play Revenue", header_name="Google Play\nRevenue($)", type=["numericColumn"], valueFormatter=revenue_formatter)
+#         gb.configure_column("Google Play Downloads", header_name="Google Play\nInstalls", type=["numericColumn"], valueFormatter=installs_formatter)
 
-        # Totales
-        gb.configure_column("Totales Revenue", header_name="Totales\nRevenue($)", type=["numericColumn"], valueFormatter=revenue_formatter)
-        gb.configure_column("Totales Downloads", header_name="Totales\nInstalls", type=["numericColumn"], valueFormatter=installs_formatter)
+#         # Totales
+#         gb.configure_column("Totales Revenue", header_name="Totales\nRevenue($)", type=["numericColumn"], valueFormatter=revenue_formatter)
+#         gb.configure_column("Totales Downloads", header_name="Totales\nInstalls", type=["numericColumn"], valueFormatter=installs_formatter)
 
-        # Opciones por defecto
-        gb.configure_default_column(sortable=True, filter=True, resizable=True)
-        gridOptions = gb.build()
+#         # Opciones por defecto
+#         gb.configure_default_column(sortable=True, filter=True, resizable=True)
+#         gridOptions = gb.build()
 
-        st.subheader("📅 Detalle Diario por Plataforma")
-        AgGrid(df_pivot, gridOptions=gridOptions, fit_columns_on_grid_load=True, allow_unsafe_jscode=True)
+#         st.subheader("📅 Detalle Diario por Plataforma")
+#         AgGrid(df_pivot, gridOptions=gridOptions, fit_columns_on_grid_load=True, allow_unsafe_jscode=True)
 
-    else:
-        st.warning("No hay datos para los filtros seleccionados")
+#     else:
+#         st.warning("No hay datos para los filtros seleccionados")
+
