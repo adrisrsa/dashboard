@@ -3,5 +3,8 @@ pandas>=2.0.3
 plotly>=5.20.0
 numpy>=1.26.0
 st-aggrid>=0.3.3 
+streamlit-aggrid >= 0.3.2
+
+
 
 
