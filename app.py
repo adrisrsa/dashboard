@@ -455,16 +455,20 @@ with tab2:
     #GRID DIARIO
 
 
-    # Filtramos el dataframe diario
-    df_daily_filtered = df_day.copy()
+          # --- Filtramos el dataframe diario según el mes seleccionado ---
+    df_daily_filtered = df_day[
+        (df_day['Country'].isin(selected_country)) &
+        (df_day['Platform'].isin(selected_platform)) &
+        (df_day['Date'].dt.to_period('M') == sel_period)
+    ].copy()
 
-    # Agrupamos por día y plataforma
+    # --- Agrupamos por día y plataforma ---
     df_daily_summary = df_daily_filtered.groupby(['Date', 'Platform'], as_index=False).agg({
         'Revenue': 'sum',
         'Downloads': 'sum'
     })
 
-    # Creamos tabla pivote con columnas para App Store, Play Store y Totales
+    # --- Creamos tabla pivote con columnas para App Store, Play Store y Totales ---
     df_pivot = df_daily_summary.pivot_table(
         index='Date',
         columns='Platform',
@@ -472,21 +476,33 @@ with tab2:
         aggfunc='sum'
     ).fillna(0)
 
-    # Agregamos totales
-    df_pivot[('Revenue', 'Total')] = df_pivot[('Revenue', 'App Store')] + df_pivot[('Revenue', 'Google Play')]
-    df_pivot[('Downloads', 'Total')] = df_pivot[('Downloads', 'App Store')] + df_pivot[('Downloads', 'Google Play')]
+    # --- Agregamos totales ---
+    if 'App Store' in df_pivot['Revenue'].columns and 'Google Play' in df_pivot['Revenue'].columns:
+        df_pivot[('Revenue', 'Total')] = (
+            df_pivot[('Revenue', 'App Store')] + df_pivot[('Revenue', 'Google Play')]
+        )
+        df_pivot[('Downloads', 'Total')] = (
+            df_pivot[('Downloads', 'App Store')] + df_pivot[('Downloads', 'Google Play')]
+        )
+    else:
+        # Si falta alguna plataforma (por ejemplo, solo hay una en los datos filtrados)
+        df_pivot[('Revenue', 'Total')] = df_pivot['Revenue'].sum(axis=1)
+        df_pivot[('Downloads', 'Total')] = df_pivot['Downloads'].sum(axis=1)
 
-    # Orden de columnas personalizado
+    # --- Orden de columnas personalizado ---
     df_pivot = df_pivot.reindex(columns=pd.MultiIndex.from_product([
         ['Revenue', 'Downloads'],
         ['App Store', 'Google Play', 'Total']
-    ]))
+    ]), fill_value=0)
 
-    # Aplanamos columnas para que se vean bien
+    # --- Aplanamos columnas para mostrar bien los encabezados ---
     df_pivot.columns = [f"{col1} ({col2})" for col1, col2 in df_pivot.columns]
     df_pivot.reset_index(inplace=True)
 
-    # Formateamos valores
+    # --- Formatear columna de fecha ---
+    df_pivot["Date"] = pd.to_datetime(df_pivot["Date"]).dt.strftime("%Y-%m-%d")
+
+    # --- Formateamos valores numéricos ---
     df_display = df_pivot.copy()
     for col in df_display.columns:
         if "Revenue" in col:
@@ -494,8 +510,8 @@ with tab2:
         elif "Downloads" in col:
             df_display[col] = df_display[col].apply(lambda x: f"{x:,.0f}")
 
-    # Mostramos título de la sección
-    st.markdown("""
+    # --- Mostramos título de la sección ---
+    st.markdown(f"""
     <div style="
         border: 2px solid #e0e0e0;
         border-radius: 12px;
@@ -503,20 +519,19 @@ with tab2:
         background-color: #f9f9f9;
         margin-top: 25px;
     ">
-        <h3 style="text-align:center; color:#333;">📅 Datos diarios por plataforma</h3>
+        <h3 style="text-align:center; color:#333;">📅 Datos diarios por plataforma — {selected_period}</h3>
     </div>
     """, unsafe_allow_html=True)
 
-    # Mostramos el dataframe con estilo
-    st.dataframe(
-        df_display.style.set_table_styles(
-            [
+    # --- Mostramos el dataframe con estilo ---
+    if not df_display.empty:
+        st.dataframe(
+            df_display.style.set_table_styles([
                 {'selector': 'th', 'props': [('font-weight', 'bold'), ('background-color', '#f1f1f1')]},
                 {'selector': 'td', 'props': [('text-align', 'right')]}
-            ]
-        ),
-        use_container_width=True,
-        hide_index=True
-    )
-
-
+            ]),
+            use_container_width=True,
+            hide_index=True
+        )
+    else:
+        st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
