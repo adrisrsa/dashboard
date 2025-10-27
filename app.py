@@ -440,7 +440,7 @@ with tab2:
         background-color: #f9f9f9;
         margin-top: 25px;
     ">
-        <h3 style="text-align:center; color:#333;">🌍 Datos por país</h3>
+        <h3 style="text-align:center; color:#333;">🌍 Datos por país — {selected_period}</h3>
     </div>
     """, unsafe_allow_html=True)
 
@@ -535,3 +535,4 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
