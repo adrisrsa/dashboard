@@ -4,14 +4,22 @@ import plotly.express as px
 from clean_data import df_month, df_day
 import plotly.graph_objects as go
 import numpy as np
+from PIL import Image
 
 
 # --- Configuración de la página ---
 st.set_page_config(
-    page_title="Mi Dashboard",
+    page_title="APP Dashboard",
     layout="wide",               # Hace que todo ocupe el ancho completo
     initial_sidebar_state="expanded"
 )
+
+# TÍTULO
+st.markdown("""
+<div style="text-align:center; color:#333; margin-bottom: 20px;">
+    <h1>📊 APP PERFORMANCE DASHBOARD</h1>
+</div>
+""", unsafe_allow_html=True)
 
 # --- Sidebar filtros ---
 st.sidebar.title("Filtros")
@@ -535,5 +543,6 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
 
 
