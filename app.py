@@ -97,6 +97,7 @@ with tab1:
         color="Platform",
         color_discrete_map=color_map
     )
+    fig_pie_revenue.update_layout(title_x=0.22)
 
     # Pie chart para Downloads
     installs_by_platform = df_filtered.groupby("Platform", as_index=False)["Downloads"].sum()
@@ -108,6 +109,7 @@ with tab1:
         color="Platform",
         color_discrete_map=color_map
     )
+    fig_pie_installs.update_layout(title_x=0.22)
 
 
     col1, col2 = st.columns(2)
@@ -580,6 +582,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
 
 
 
