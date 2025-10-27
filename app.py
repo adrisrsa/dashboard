@@ -432,7 +432,7 @@ with tab2:
 
 
      # Mostramos título de la sección
-    st.markdown("""
+    st.markdown(f"""
     <div style="
         border: 2px solid #e0e0e0;
         border-radius: 12px;
@@ -535,4 +535,5 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
 
