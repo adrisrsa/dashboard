@@ -17,7 +17,7 @@ st.set_page_config(
 # TÍTULO
 st.markdown("""
 <div style="text-align:center; color:#333; margin-bottom: 20px;">
-    <h1>📊 APP PERFORMANCE DASHBOARD</h1>
+    <h1>APP PERFORMANCE DASHBOARD</h1>
 </div>
 """, unsafe_allow_html=True)
 
@@ -549,6 +549,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
 
 
 
