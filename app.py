@@ -113,16 +113,47 @@ with tab1:
     col1, col2 = st.columns(2)
 
     with col1:
-        total_revenue = df_filtered['Revenue'].sum()
-        st.metric("💰 Revenue Total", f"${total_revenue:,.2f}")
-
-        revenue_by_platform = df_filtered.groupby('Platform', as_index=False)['Revenue'].sum()
-        st.plotly_chart(fig_pie_revenue, use_container_width=True)
+            total_revenue = df_filtered['Revenue'].sum()
+    #         st.metric("💰 Revenue Total", f"${total_revenue:,.2f}")
+            fig_revenue = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=total_revenue,
+                title={'text': "💰 Revenue Total", 'font': {'size': 20}},
+                gauge={
+                    'axis': {'range': [0, max(total_revenue*1.2, 1)]},  # rango dinámico
+                    'bar': {'color': "green"},
+                    'steps': [
+                        {'range': [0, total_revenue*0.5], 'color': "lightgray"},
+                        {'range': [total_revenue*0.5, total_revenue], 'color': "gray"}
+                    ],
+                }
+            ))
+    
+            st.plotly_chart(fig_revenue, use_container_width=True)
+    
+            revenue_by_platform = df_filtered.groupby('Platform', as_index=False)['Revenue'].sum()
+            st.plotly_chart(fig_pie_revenue, use_container_width=True)
 
     with col2:
         total_installs = df_filtered['Downloads'].sum()
-        st.metric("📥 Installs Totales", f"{total_installs:,}")
+#         st.metric("📥 Installs Totales", f"{total_installs:,}")
+        fig_installs = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=total_installs,
+            title={'text': "📥 Installs Totales", 'font': {'size': 20}},
+            gauge={
+                'axis': {'range': [0, max(total_installs*1.2, 1)]},  # rango dinámico
+                'bar': {'color': "blue"},
+                'steps': [
+                    {'range': [0, total_installs*0.5], 'color': "lightgray"},
+                    {'range': [total_installs*0.5, total_installs], 'color': "gray"}
+                ],
+            }
+        ))
 
+        st.plotly_chart(fig_installs, use_container_width=True)
+        
+        
         installs_by_platform = df_filtered.groupby('Platform', as_index=False)['Downloads'].sum()
         st.plotly_chart(fig_pie_installs, use_container_width=True)
         
@@ -549,6 +580,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
 
 
 
