@@ -22,6 +22,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Sidebar filtros ---
+# Cargar imagen desde archivo
+icon = Image.open("icon.png")
+
+# Mostrar imagen en la barra lateral
+st.sidebar.image(icon, width=250)
+
 st.sidebar.title("Filtros")
 
 # Países
@@ -543,6 +549,7 @@ with tab2:
         )
     else:
         st.warning("⚠️ No hay datos diarios disponibles para los filtros seleccionados.")
+
 
 
 
